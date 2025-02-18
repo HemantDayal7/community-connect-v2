@@ -1,26 +1,22 @@
+import app from './app';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 
-import express from 'express';
+// Load environment variables
 import dotenv from 'dotenv';
-import cors from 'cors';
-import helmet from 'helmet';
-
-import connectDB from './config/db';
-import authRoutes from './routes/authRoutes';
-
 dotenv.config();
 
-const app = express();
+const PORT = process.env.PORT || 5555;
 
-// Middleware
-app.use(express.json());
-app.use(cors());
-app.use(helmet());
+// Load Swagger YAML file
+const swaggerDocument = YAML.load(path.join(__dirname, './docs/swagger.yaml'));
 
-// Database Connection
-connectDB();
+// Serve Swagger UI at /api/docs
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes
-app.use('/api/auth', authRoutes);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start the server
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`📜 Swagger API Docs available at http://localhost:${PORT}/api/docs`);
+});
